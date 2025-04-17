@@ -14,10 +14,18 @@ def analyze_log_file(filename="access.log"):
 
     try:
         # open the access.log file and read the lines into a list (ideally named log_lines if you want to use the code from the instruction page)
-        pass  #remove this line when you start coding
+        with open(filename, "r") as f:
+            log_lines = f.readlines()
     except FileNotFoundError:
         print(f"Error: Log file '{filename}' not found.")
         return
+   
+   # Initializing variables to track data
+
+    error_count = 0
+    unique_ips = set()
+    url_counts = {}
+
 
     # set up variables to store the datetime, error count, unique IPs, and URL counts for the log file.
 
@@ -28,7 +36,13 @@ def analyze_log_file(filename="access.log"):
     #     - if the url is in your url_counts dictionary, increment the count by 1, otherise add the url to the dictionary with a count of 1.
     #     - if the status code is greater than or equal to 400, increment the error count by 1.
     
-
+    for line in log_lines:
+        timestamp, ip, url, status_code = extract_log_data(line)
+        if timestamp:
+            unique_ips.add(ip)
+            url_counts[url] = url_counts.get(url, 0) + 1
+            if int(status_code) >= 400:
+                error_count += 1
     # d.  Print out the summary information as shown in the instructions.  It should look like this:
     '''
     Total Errors (4xx and 5xx): 52
@@ -41,6 +55,11 @@ def analyze_log_file(filename="access.log"):
         /api/data: 16
     '''
 
+    print(f"Total Errors (4xx and 5xx): {error_count}")
+    print(f"Unique IP Addresses: {len(unique_ips)}")
+    print("URL Access Counts:")
+    for url in sorted(url_counts):
+        print(f"  {url}: {url_counts[url]}") 
 
 def extract_log_data(line):
     #please note that you do not need to edit this function, just the analyze_log_file function above!
